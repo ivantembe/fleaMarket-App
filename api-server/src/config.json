@@ -1,0 +1,11 @@
+{
+	"port": 4000,
+	"secret": "Passphrase for encryption",
+	"database": {
+		"host": "127.0.0.1",
+		"port": "3306",
+		"password": "root",
+		"user": "root",
+		"name": "sae_db"
+	}
+}
