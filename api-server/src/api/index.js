@@ -1,14 +1,13 @@
 import { version } from '../../package.json';
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
+import passport from 'passport';
 
 
 
 
 export default ({ config, db }) => {
 	let api = Router();
-
-	// perhaps expose some API metadata at the root
 	api.get('/', (req, res) => {
 		res.json({ version });
 	});
@@ -19,7 +18,6 @@ export default ({ config, db }) => {
 			res.status(422).json({message:"missing parameter"});
 			return
 		}
-		// usually this would be a database call:
 		db.query('SELECT * FROM users WHERE user_email = ?', [req.body.email], (err, rows) => {
 			let user = null;
 			if (err) {
@@ -33,7 +31,6 @@ export default ({ config, db }) => {
 				res.status(401).json({message:"no such user found"});
 				return
 			} else if(user.user_password === req.body.password) {
-				// from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
 				var payload = {email: req.body.email};
 				var token = jwt.sign(payload, config.secret);
 				res.json({message: "ok", token: token, user:user});
@@ -55,13 +52,11 @@ export default ({ config, db }) => {
 			user_email: req.body.email,
 			user_password: req.body.password
 		}
-		// check if user already exists
 		db.query('SELECT * FROM users WHERE user_email = ?', [user.user_email], (err, rows) => {
 			if(rows && rows.length > 0){
 				res.status(401).json({message:"E-Mail already exist"});
 				return
 			}
-			// usually this would be a database call:
 			db.query('INSERT INTO users SET ?', user, (err) => {
 				if (err) {
 					res.status(500)
@@ -79,79 +74,161 @@ export default ({ config, db }) => {
 	});
 
 
-	// Create List Router
-	api.post('/createList', (req, res) => {
-		if(!req.body.category){
+	// CREATE LIST - ROUTE
+	api.post('/list', passport.authenticate('jwt', {session: false}), (req, res) => {
+		if(!req.body.category || !req.body.condition || !req.body.offeringType || !req.body.listTitle || !req.body.listPrice || !req.body.listDescription || !req.body.city || !req.body.providerName || !req.body.providerTelephone){
 			res.status(422).json({message:"missing parameter"});
 			return
 		}
 		const list = {
-			category: req.body.category
+			category: req.body.category,
+			condition: req.body.condition,
+			offeringType: req.body.offeringType,
+			listTitle: req.body.listTitle,
+			listPrice: req.body.listPrice,
+			listDescription: req.body.listDescription,
+			city: req.body.city,
+			providerName: req.body.providerName,
+			providerTelephone: req.body.providerTelephone,
+			user_id:req.user.user_id
 		}
-		console.log(list);
 
 		db.query('INSERT INTO lists SET ?', list, (err) => {
-			console.log(list)
-			let user_id = null;
 			if (err) {
-				res.status(500).json({message: list});
-				res.status(500).json({message:"list NOT created"});
+                res.status(500).json({message:"list NOT created", err: err});
+                return;
+			} else  {
+					res.json({list: list});
+				}
+		})
+	});
+
+
+	// GET ALL LISTS FROM DB - ROUTE
+	api.get('/allLists', (req, res) => {
+		db.query('SELECT * FROM lists', (err, rows) => {
+			res.json({list: rows});
+		})
+	});
+
+	// GET ALL LISTS FROM USERS IN DB - ROUTE
+	api.get('/userLists', passport.authenticate('jwt', {session: false}), (req, res) => {
+		const listUserID = req.user.user_id;
+		db.query('SELECT * FROM lists WHERE user_id = ? ', [listUserID], (err, rows) => {
+			if (err) {
+				res.status(500).json({message: 'GET LISTS FAILED', ERROR: err})
 				return;
 			}
-			if(list){
-				var payload = {category: list.category};
-				var token = jwt.sign(payload, config.secret);
-				res.json({message: "ok", token: token, user: user_id});
-			} else {
-				res.status(500)
-			}
+			res.json({list: rows});
 		})
-		
-	// api.post('/createList', (req, res) => {
-	// 	if(!req.body.category || !req.body.condition || !req.body.type || !req.body.title || !req.body.description || !req.body.price || !req.body.image || !req.body.city || !req.body.name || !req.body.telephone){
-	// 		res.status(422).json({message:"missing parameter"});
-	// 		return
-	// 	}
-	// 	const list = {
-	// 		category: req.body.category,
-	// 		condition: req.body.condition,
-	// 		type: req.body.type,
-	// 		title : req.body.title,
-	// 		description: req.body.description,
-	// 		price: req.body.price,
-	// 		image: req.body.image,
-	// 		city: req.body.city,
-	// 		name: req.body.name,
-	// 		telephone: req.body.telephone,
-	// 	}
+	});
 
-	// 	db.query('INSERT INTO lists SET ?', list, (err) => {
+	// // GET ALL LISTS WHERE CATEGORY IS -- All -- IN DB ROUTE
+	// api.get('/allCategories', (req, res) => {
+	// 	db.query('SELECT category FROM lists', (err, rows) => {
 	// 		if (err) {
-	// 			res.status(500).json({message:"list successfuly created"});
+	// 			res.status(500).json({message: 'GET LISTS FAILED', ERROR: err})
 	// 			return;
 	// 		}
+	// 		res.json({list: rows});
 	// 	})
-		
-		// db.query('SELECT * FROM users WHERE user_email = ?', [list.user_email], (err, rows) => {
-		// 	if(rows && rows.length > 0){
-		// 		res.status(401).json({message:"E-Mail already exist"});
-		// 		return
-		// 	}
-		// 	// usually this would be a database call:
-		// 	db.query('INSERT INTO users SET ?', list, (err) => {
-		// 		if (err) {
-		// 			res.status(500)
-		// 			return;
-		// 		}
-		// 		if(list){
-		// 			var payload = {email: list.user_email};
-		// 			var token = jwt.sign(payload, config.secret);
-		// 			res.json({message: "ok", token: token});
-		// 		} else {
-		// 			res.status(500)
-		// 		}
-		// 	})
-		// })
+	// });
+
+
+	// GET ALL LISTS WHERE CATEGORY IS -- CAR & BIKE -- IN DB ROUTE
+	api.get('/carAndBike', (req, res) => {
+		const categoryID = 'Car & Bike';
+		db.query('SELECT * FROM lists WHERE category = ? ', [categoryID], (err, rows) => {
+			if (err) {
+				res.status(500).json({message: 'GET LISTS FAILED', ERROR: err})
+				return;
+			}
+			res.json({list: rows});
+		})
+	});
+
+	// GET ALL LISTS WHERE CATEGORY IS -- REAL STATE -- IN DB ROUTE
+	api.get('/realState', (req, res) => {
+		const categoryID = 'Real State';
+		db.query('SELECT * FROM lists WHERE category = ? ', [categoryID], (err, rows) => {
+			if (err) {
+				res.status(500).json({message: 'GET LISTS FAILED', ERROR: err})
+				return;
+			}
+			res.json({list: rows});
+		})
+	});
+
+	// GET ALL LISTS WHERE CATEGORY IS -- MODE & BEAUTY -- IN DB ROUTE
+	api.get('/modeAndBeauty', (req, res) => {
+		const categoryID = 'Mode & Beauty';
+		db.query('SELECT * FROM lists WHERE category = ? ', [categoryID], (err, rows) => {
+			if (err) {
+				res.status(500).json({message: 'GET LISTS FAILED', ERROR: err})
+				return;
+			}
+			res.json({list: rows});
+		})
+	});
+
+	// GET ALL LISTS WHERE CATEGORY IS -- ELECTRONICS -- IN DB ROUTE
+	api.get('/electronics', (req, res) => {
+		const categoryID = 'Electronics';
+		db.query('SELECT * FROM lists WHERE category = ? ', [categoryID], (err, rows) => {
+			if (err) {
+				res.status(500).json({message: 'GET LISTS FAILED', ERROR: err})
+				return;
+			}
+			res.json({list: rows});
+		})
+	});
+
+	// DELETE LIST FROM USERS IN DB - ROUTE
+	api.delete('/deleteList', passport.authenticate('jwt', {session: false}), (req, res) => {
+		const listUserID = req.user.user_id;
+		db.query('DELETE FROM lists WHERE user_id = ?', [listUserID], (err, results) => {
+			console.log(err, results)
+			if (err) {
+				res.status(500)
+				return;
+			}
+			db.query('SELECT * FROM lists WHERE user_id = ? ', [listUserID], (err, rows) => {
+				if (err) {
+					res.status(500).json({message: 'GET LISTS FAILED', ERROR: err})
+					return;
+				}
+				res.json({list: rows});
+			})
+		})
+	});
+
+
+	// UPDATE LIST FROM USERS IN DB - ROUTE
+	api.post('/updateList', passport.authenticate('jwt', {session: false}), (req, res) => {
+		if(!req.body.category || !req.body.condition || !req.body.offeringType || !req.body.listTitle || !req.body.listPrice || !req.body.listDescription || !req.body.city || !req.body.providerName || !req.body.providerTelephone){
+			res.status(422).json({message:"missing parameter"});
+			return
+		}
+		const list = {
+			category: req.body.category,
+			condition: req.body.condition,
+			offeringType: req.body.offeringType,
+			listTitle: req.body.listTitle,
+			listPrice: req.body.listPrice,
+			listDescription: req.body.listDescription,
+			city: req.body.city,
+			providerName: req.body.providerName,
+			providerTelephone: req.body.providerTelephone,
+			user_id:req.user.user_id
+		}
+
+		db.query('UPDATE lists SET listTitle = ?,  WHERE user_id = ?', [list], (err) => {
+			if (err) {
+				res.status(500)
+				return;
+			}
+			res.json({ results: 'List Updated'})
+		})
 	});
 
 	return api;

@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '../layout/header/Header';
 import Content from '../layout/content/Content'
+import Footer from '../layout/footer/Footer';
 
 
 class Home extends React.Component {
@@ -10,6 +11,7 @@ class Home extends React.Component {
       <div >
         < Header />
         < Content />
+        < Footer />
       </div>
     )
   }

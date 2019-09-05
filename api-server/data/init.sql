@@ -17,30 +17,22 @@ CREATE TABLE `users` (
 CREATE TABLE `lists` (
   `list_id` int(11) NOT NULL AUTO_INCREMENT,
   `category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `condition` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `offeringType` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `listTitle` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `listDescription` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `providerName` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `listPrice` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `providerTelephone` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`list_id`),
-  -- KEY `lists_user` (`user_id`),
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-  -- CONSTRAINT `lists_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `lists_user` (`user_id`),
+  CONSTRAINT `lists_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- CREATE TABLE `lists` (
---   `id` int(11) NOT NULL AUTO_INCREMENT,
---   `category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   -- `condition` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   -- `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   -- `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   -- `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   -- `price` int(11) NOT NULL,
---   -- `image` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   -- `city` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   -- `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   -- `telephone` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   `user_id` int(11) NOT NULL,
---   PRIMARY KEY (`id`),
---   KEY `lists_user` (`user_id`),
---   CONSTRAINT `lists_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    
 
 
 

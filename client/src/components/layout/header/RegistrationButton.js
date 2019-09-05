@@ -6,10 +6,15 @@ class RegistrationButton extends Component {
   render() {
     return (
       <div>
-        <Link to="/login">
+        <Link to="/register">
             <Button className="float-right text-uppercase"
                 type="primary">
-                Login / Register
+                Register
+            </Button>
+        </Link>
+        <Link to="/login">
+            <Button className="float-right text-uppercase mr-2">
+                Login
             </Button>
         </Link>
       </div>

@@ -5,6 +5,7 @@ import createStore from 'unistore';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register'
 import Home from './components/pages/Home';
+import About from './components/pages/About'
 import NotFound from './components/pages/NotFound'
 
 
@@ -17,6 +18,7 @@ function App() {
         <div style={{ fontFamily: 'Trebuchet MS'}}>
           <Switch>
             <Route exact path="/" component={Home} />
+            <Route exact path="/about" component={About} />
             <Route exact path="/login" component={Login}/ >
             <Route exact path="/register" component={Register} />
             <Route component={NotFound} />
