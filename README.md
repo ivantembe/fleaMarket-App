@@ -16,4 +16,5 @@ This application allows users to register, create, update and delete list to/fro
 
 TO try the application please:
 1. Download or clone the repo
-2. 
+2. Inside the folder *api-server* navigate to the folder *data* and open the file *init.sql*. Copy the SQL script into your      MySQL Admnin to generate the database
+3. Open your terminal, inside the project root folder *fleamarket-sae-project* cd into *api-server* and type the command *npm    run dev* to start the backend dev server. In onether terminal window, inside the project root folder *fleamarket-sae-          project* cd into *client* and type the command *npm start* to start the frontened dev server.  
