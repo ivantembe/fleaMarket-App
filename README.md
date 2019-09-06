@@ -14,7 +14,7 @@ This application allows users to register, create, update and delete list to/fro
 * RestFull API
 
 
-TO try the application please:
+#### TO try the application please:
 1. Download or clone the repo
 
 2. Inside the folder **api-server** navigate to the folder **data** and open the file **init.sql**. Copy the SQL script into      your MySQL Admnin to generate the database
