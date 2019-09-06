@@ -12,3 +12,8 @@ This application allows users to register, create, update and delete list to/fro
 * Express
 * SQL
 * RestFull API
+
+
+TO try the application please:
+1. Download or clone the repo
+2. 
